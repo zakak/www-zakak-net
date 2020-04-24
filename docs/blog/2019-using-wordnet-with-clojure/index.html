@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Beautiful Jekyll | MIT license | Copyright Dean Attali 2016 -->
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+
+  <title>Using WordNet with Clojure</title>
+
+  <meta name="author" content="Zak Kriner" />
+
+  
+
+  <link rel="alternate" type="application/rss+xml" title="Zak Kriner's Blog - Home" href="/blog/feed.xml" />
+
+  
+
+  
+
+  
+
+
+  
+    
+      
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" />
+
+
+    
+  
+
+  
+    
+      <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    
+      <link rel="stylesheet" href="/css/bootstrap-social.css" />
+    
+      <link rel="stylesheet" href="/css/main.css" />
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+    <!-- Facebook OpenGraph tags -->
+  
+
+  
+  <meta property="og:title" content="Using WordNet with Clojure" />
+  
+
+   
+  <meta property="og:description" content="Clojure’s interop provides direct access to Java and its many libraries. In this post we’ll explore the Extended Java WordNet Library (extJWNL). extJWNL’s Getting started section shows dependencies in a pom.xml used by Maven: &amp;lt;!-- main library dependency --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;net.sf.extjwnl&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;extjwnl&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.0.2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- Princeton WordNet 3.1 data dependency...">
+  
+
+
+  <meta property="og:type" content="website" />
+
+  
+  <meta property="og:url" content="/blog/2019-using-wordnet-with-clojure/" />
+  <link rel="canonical" href="/blog/2019-using-wordnet-with-clojure/" />
+  
+
+  
+
+
+  <!-- Twitter summary cards -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@" />
+  <meta name="twitter:creator" content="@" />
+
+  
+  <meta name="twitter:title" content="Using WordNet with Clojure" />
+  
+
+  
+  <meta name="twitter:description" content="Clojure’s interop provides direct access to Java and its many libraries. In this post we’ll explore the Extended Java WordNet Library (extJWNL). extJWNL’s Getting started section shows dependencies in a pom.xml used by Maven: &amp;lt;!-- main library dependency --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;net.sf.extjwnl&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;extjwnl&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.0.2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- Princeton WordNet 3.1 data dependency...">
+  
+
+  
+
+  
+
+  
+
+</head>
+
+
+  <body>
+
+    
+
+  
+    <nav class="navbar navbar-default navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button><a class="navbar-brand" href="">Zak Kriner's Blog</a></div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+      <li>
+    <a href="/blog/feed.xml" title="RSS">
+    <span class="fa-stack fa-lg" aria-hidden="true">
+        <i class="fas fa-circle fa-stack-2x"></i>
+        <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+    </span>
+    <span class="sr-only">RSS</span>
+    </a>
+</li><li>
+    <a href="mailto:zak@zakak.net" title="Email me">
+    <span class="fa-stack fa-lg" aria-hidden="true">
+        <i class="fas fa-circle fa-stack-2x"></i>
+        <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+    </span>
+    <span class="sr-only">Email me</span>
+    </a>
+</li><li>
+    <a href="https://github.com/zakak" title="GitHub">
+    <span class="fa-stack fa-lg" aria-hidden="true">
+        <i class="fas fa-circle fa-stack-2x"></i>
+        <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+    </span>
+    <span class="sr-only">GitHub</span>
+    </a>
+</li></ul>
+    </div>
+
+	
+
+  </div>
+</nav>
+
+
+    <!-- TODO this file has become a mess, refactor it -->
+
+
+
+
+
+<header class="header-section ">
+
+<div class="intro-header no-img">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="post-heading">
+          <h1>Using WordNet with Clojure</h1>
+		  
+		  
+		  
+		  <span class="post-meta">Posted on January 30, 2019</span>
+		  
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</header>
+
+
+
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+      
+
+      <article role="main" class="blog-post">
+        <p>Clojure’s <a href="https://clojure.org/reference/java_interop">interop</a>
+provides direct access to Java and its many libraries. In this post
+we’ll explore the Extended Java WordNet Library (extJWNL).</p>
+
+<p>extJWNL’s <a href="https://github.com/extjwnl/extjwnl">Getting started section</a>
+shows dependencies in a
+pom.xml used by 
+<a href="https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#What_is_a_POM">Maven</a>:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- main library dependency --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>net.sf.extjwnl<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>extjwnl<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.0.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="c">&lt;!-- Princeton WordNet 3.1 data dependency --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>net.sf.extjwnl<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>extjwnl-data-wn31<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>Clojure projects can also use Maven dependencies. We just need to
+translate the XML into something our tooling understands.</p>
+
+<p>The same dependencies using
+a <a href="https://clojure.org/guides/deps_and_cli"><code class="highlighter-rouge">deps.edn</code></a> file looks
+like this:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="no">:deps</span><span class="w">
+ </span><span class="p">{</span><span class="n">net.sf.extjwnl/extjwnl</span><span class="w">           </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"2.0.2"</span><span class="p">}</span><span class="w">
+  </span><span class="n">net.sf.extjwnl/extjwnl-data-wn31</span><span class="w"> </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"1.2"</span><span class="p">}}}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>In the same directory as our <code class="highlighter-rouge">deps.edn</code>,
+start a <a href="https://clojure.org/guides/deps_and_cli#_running_a_repl_and_using_libraries"><code class="highlighter-rouge">clj</code> REPL</a>
+– which also downloads dependencies if necessary:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>clj
+<span class="c"># Downloading: ...</span>
+Clojure 1.10.0
+<span class="nv">user</span><span class="o">=&gt;</span>
+</code></pre></div></div>
+
+<p>extJWNL’s
+<a href="https://github.com/extjwnl/extjwnl/blob/master/utilities/src/main/java/net/sf/extjwnl/utilities/Examples.java">examples</a>
+make <code class="highlighter-rouge">Dictionary</code> seem like a good place to start. In the REPL:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">; Java: import net.sf.extjwnl.dictionary.Dictionary;</span><span class="w">
+</span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nb">import</span><span class="w"> </span><span class="ss">'net.sf.extjwnl.dictionary.Dictionary</span><span class="p">)</span><span class="w">
+</span><span class="n">net.sf.extjwnl.dictionary.Dictionary</span><span class="w">
+
+</span><span class="c1">; Java: Dictionary dict = Dictionary.getDefaultResourceInstance();</span><span class="w">
+</span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">def</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="p">(</span><span class="nf">Dictionary/getDefaultResourceInstance</span><span class="p">))</span><span class="w">
+</span><span class="n">SLF4J</span><span class="err">:</span><span class="w"> </span><span class="n">Failed</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="nb">load</span><span class="w"> </span><span class="nb">class</span><span class="w"> </span><span class="s">"org.slf4j.impl.StaticLoggerBinder"</span><span class="nb">.</span><span class="w">
+</span><span class="n">SLF4J</span><span class="err">:</span><span class="w"> </span><span class="n">Defaulting</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">no-operation</span><span class="w"> </span><span class="p">(</span><span class="nf">NOP</span><span class="p">)</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="n">implementation</span><span class="w">
+</span><span class="n">SLF4J</span><span class="err">:</span><span class="w"> </span><span class="n">See</span><span class="w"> </span><span class="n">http</span><span class="no">://www.slf4j.org/codes.html#StaticLoggerBinder</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">further</span><span class="w"> </span><span class="n">details.</span><span class="w">
+</span><span class="o">#</span><span class="ss">'user/dict</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Looks like extJWNL uses <a href="http://www.slf4j.org/">SLF4J</a> for logging and
+we didn’t include it in our dependencies. To disable the warning we
+could add slf4j-nop to our <code class="highlighter-rouge">deps.edn</code>:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="no">:deps</span><span class="w">
+ </span><span class="p">{</span><span class="n">net.sf.extjwnl/extjwnl</span><span class="w">           </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"2.0.2"</span><span class="p">}</span><span class="w">
+  </span><span class="n">net.sf.extjwnl/extjwnl-data-wn31</span><span class="w"> </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"1.2"</span><span class="p">}</span><span class="w">
+  </span><span class="c1">; no-operation logger</span><span class="w">
+  </span><span class="n">org.slf4j/slf4j-nop</span><span class="w">              </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"1.7.25"</span><span class="p">}}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Let’s try again:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">$</span><span class="w"> </span><span class="n">clj</span><span class="w">
+</span><span class="n">Clojure</span><span class="w"> </span><span class="mf">1.10</span><span class="n">.0</span><span class="w">
+</span><span class="c1">; Java: import net.sf.extjwnl.dictionary.Dictionary;</span><span class="w">
+</span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nb">import</span><span class="w"> </span><span class="ss">'net.sf.extjwnl.dictionary.Dictionary</span><span class="p">)</span><span class="w">
+</span><span class="n">net.sf.extjwnl.dictionary.Dictionary</span><span class="w">
+
+</span><span class="c1">; Java: Dictionary dict = Dictionary.getDefaultResourceInstance();</span><span class="w">
+</span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">def</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="p">(</span><span class="nf">Dictionary/getDefaultResourceInstance</span><span class="p">))</span><span class="w">
+</span><span class="o">#</span><span class="ss">'user/dict</span><span class="w">
+</span></code></pre></div></div>
+
+<p>That’s better.</p>
+
+<p>Following along in the
+<a href="http://extjwnl.sourceforge.net/javadocs/index.html">Java API documentation</a> we can
+see <code class="highlighter-rouge">Dictionary</code> methods:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">; Java: dict.lookupAllIndexWords("dog");</span><span class="w">
+</span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">.lookupAllIndexWords</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="s">"dog"</span><span class="p">)</span><span class="w">
+</span><span class="c1">;;=&gt; ... "[IndexWordSet: [IndexWord: [Lemma: dog] [POS: noun]][IndexWord: [Lemma: dog] [POS: verb]]]"</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="highlighter-rouge">IndexWordSet</code>? Check the API documentation again. Looks like
+<code class="highlighter-rouge">getIndexWordCollection</code> gives us something that works with Clojure’s
+map, filter, etc.</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">; Java: dict.lookupAllIndexWords("dog").getIndexWordCollection();</span><span class="w">
+</span><span class="p">(</span><span class="nf">.getIndexWordCollection</span><span class="w">
+    </span><span class="p">(</span><span class="nf">.lookupAllIndexWords</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="s">"dog"</span><span class="p">))</span><span class="w"> </span><span class="c1">;;=&gt; ... "[[IndexWord: [Lemma: dog] [POS: noun]], [IndexWord: [Lemma: dog] [POS: verb]]]"</span><span class="w">
+
+
+</span><span class="c1">; I like my Java like I like my conspiracy wall -- threading over a map.</span><span class="w">
+</span><span class="p">(</span><span class="nf">-&gt;&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">.lookupAllIndexWords</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="s">"dog"</span><span class="p">)</span><span class="w">
+     </span><span class="p">(</span><span class="nf">.getIndexWordCollection</span><span class="p">)</span><span class="w">
+     </span><span class="p">(</span><span class="nb">map</span><span class="w"> </span><span class="o">#</span><span class="p">(</span><span class="nf">.getPOS</span><span class="w"> </span><span class="n">%</span><span class="p">)))</span><span class="w"> </span><span class="c1">;;=&gt; (... "[POS: noun]"] ... "[POS: verb]"])</span><span class="w">
+</span></code></pre></div></div>
+
+<p>From here, hopefully you’ll be comfortable reading
+<a href="https://github.com/extjwnl/extjwnl/wiki/Documentation">extJWNL’s documentation</a>
+directly. Who needs
+<a href="https://github.com/zakak/clj-extjwnl">wrapper libraries</a> anyway?</p>
+
+      </article>
+
+      
+        <div class="blog-tags">
+          Tags:
+          
+          
+            <a href="/blog/tags#clojure">clojure</a>
+          
+            <a href="/blog/tags#wordnet">wordnet</a>
+          
+          
+        </div>
+      
+
+      
+
+      <ul class="pager blog-pager">
+        
+        
+      </ul>
+	  
+    </div>
+  </div>
+</div>
+
+
+    <footer>
+  <div class="container beautiful-jekyll-footer">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <p class="copyright text-muted">
+      ©
+      2020
+      Zak Kriner
+
+      
+
+      
+      </p>
+          <!-- Please don't remove this, keep my open source work credited :) -->
+    <p class="theme-by text-muted">
+      Theme by
+      <a href="https://deanattali.com/beautiful-jekyll/">beautiful-jekyll</a>
+    </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+  
+    
+
+
+  
+    <!-- doing something a bit funky here because I want to be careful not to include JQuery twice! -->
+    
+      <script>
+      	if (typeof jQuery == 'undefined') {
+          document.write('<script src="/js/jquery-1.11.2.min.js"></scr' + 'ipt>');
+      	}
+      </script>
+    
+  
+    <!-- doing something a bit funky here because I want to be careful not to include JQuery twice! -->
+    
+      <script src="/js/bootstrap.min.js"></script>
+    
+  
+
+
+
+
+
+
+  
+  </body>
+</html>

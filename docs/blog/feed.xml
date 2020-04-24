@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zak Kriner's Blog</title>
+    <description>Home</description>
+    <link></link>
+    <atom:link href="/blog/feed.xml" rel="self" type="application/rss+xml" />
+    
+      <item>
+        <title>Using WordNet with Clojure</title>
+        <description>
+          
+          Clojure’s interop
+provides direct access to Java and its many libraries. In this post
+we’ll explore the Extended Java WordNet Library (extJWNL).
+
+extJWNL’s Getting started section
+shows dependencies in a
+pom.xml used by 
+Maven:
+
+&amp;lt;!-- main library dependency --&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;net.sf.extjwnl&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;extjwnl&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;2.0.2&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+&amp;lt;!-- Princeton WordNet 3.1 data dependency --&amp;gt;
+&amp;lt;dependency&amp;gt;
+    &amp;lt;groupId&amp;gt;net.sf.extjwnl&amp;lt;/groupId&amp;gt;
+    &amp;lt;artifactId&amp;gt;extjwnl-data-wn31&amp;lt;/artifactId&amp;gt;
+    &amp;lt;version&amp;gt;1.2&amp;lt;/version&amp;gt;
+&amp;lt;/dependency&amp;gt;
+
+
+Clojure projects can also use Maven dependencies. We just need to
+translate the XML into something our tooling understands.
+
+The same dependencies using
+a deps.edn file looks
+like this:
+
+{:deps
+ {net.sf.extjwnl/extjwnl           {:mvn/version &quot;2.0.2&quot;}
+  net.sf.extjwnl/extjwnl-data-wn31 {:mvn/version &quot;1.2&quot;}}}
+
+
+In the same directory as our deps.edn,
+start a clj REPL
+– which also downloads dependencies if necessary:
+
+$ clj
+# Downloading: ...
+Clojure 1.10.0
+user=&amp;gt;
+
+
+extJWNL’s
+examples
+make Dictionary seem like a good place to start. In the REPL:
+
+; Java: import net.sf.extjwnl.dictionary.Dictionary;
+user=&amp;gt; (import 'net.sf.extjwnl.dictionary.Dictionary)
+net.sf.extjwnl.dictionary.Dictionary
+
+; Java: Dictionary dict = Dictionary.getDefaultResourceInstance();
+user=&amp;gt; (def dict (Dictionary/getDefaultResourceInstance))
+SLF4J: Failed to load class &quot;org.slf4j.impl.StaticLoggerBinder&quot;.
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+#'user/dict
+
+
+Looks like extJWNL uses SLF4J for logging and
+we didn’t include it in our dependencies. To disable the warning we
+could add slf4j-nop to our deps.edn:
+
+{:deps
+ {net.sf.extjwnl/extjwnl           {:mvn/version &quot;2.0.2&quot;}
+  net.sf.extjwnl/extjwnl-data-wn31 {:mvn/version &quot;1.2&quot;}
+  ; no-operation logger
+  org.slf4j/slf4j-nop              {:mvn/version &quot;1.7.25&quot;}}
+
+
+Let’s try again:
+
+$ clj
+Clojure 1.10.0
+; Java: import net.sf.extjwnl.dictionary.Dictionary;
+user=&amp;gt; (import 'net.sf.extjwnl.dictionary.Dictionary)
+net.sf.extjwnl.dictionary.Dictionary
+
+; Java: Dictionary dict = Dictionary.getDefaultResourceInstance();
+user=&amp;gt; (def dict (Dictionary/getDefaultResourceInstance))
+#'user/dict
+
+
+That’s better.
+
+Following along in the
+Java API documentation we can
+see Dictionary methods:
+
+; Java: dict.lookupAllIndexWords(&quot;dog&quot;);
+user=&amp;gt; (.lookupAllIndexWords dict &quot;dog&quot;)
+;;=&amp;gt; ... &quot;[IndexWordSet: [IndexWord: [Lemma: dog] [POS: noun]][IndexWord: [Lemma: dog] [POS: verb]]]&quot;
+
+
+IndexWordSet? Check the API documentation again. Looks like
+getIndexWordCollection gives us something that works with Clojure’s
+map, filter, etc.
+
+; Java: dict.lookupAllIndexWords(&quot;dog&quot;).getIndexWordCollection();
+(.getIndexWordCollection
+    (.lookupAllIndexWords dict &quot;dog&quot;)) ;;=&amp;gt; ... &quot;[[IndexWord: [Lemma: dog] [POS: noun]], [IndexWord: [Lemma: dog] [POS: verb]]]&quot;
+
+
+; I like my Java like I like my conspiracy wall -- threading over a map.
+(-&amp;gt;&amp;gt; (.lookupAllIndexWords dict &quot;dog&quot;)
+     (.getIndexWordCollection)
+     (map #(.getPOS %))) ;;=&amp;gt; (... &quot;[POS: noun]&quot;] ... &quot;[POS: verb]&quot;])
+
+
+From here, hopefully you’ll be comfortable reading
+extJWNL’s documentation
+directly. Who needs
+wrapper libraries anyway?
+
+        </description>
+        <pubDate>Wed, 30 Jan 2019 00:00:00 -0500</pubDate>
+        <link>/blog/2019-using-wordnet-with-clojure/</link>
+        <guid isPermaLink="true">/blog/2019-using-wordnet-with-clojure/</guid>
+      </item>
+    
+  </channel>
+</rss>
