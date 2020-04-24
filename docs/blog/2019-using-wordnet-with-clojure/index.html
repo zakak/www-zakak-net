@@ -56,7 +56,7 @@
   
 
    
-  <meta property="og:description" content="Clojure’s interop provides direct access to Java and its many libraries. In this post we’ll explore the Extended Java WordNet Library (extJWNL). extJWNL’s Getting started section shows dependencies in a pom.xml used by Maven: &amp;lt;!-- main library dependency --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;net.sf.extjwnl&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;extjwnl&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.0.2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- Princeton WordNet 3.1 data dependency...">
+  <meta property="og:description" content="Clojure’s interop provides direct access to Java and its many libraries. This post will walk through using the Extended Java WordNet Library (extJWNL) to query WordNet. extJWNL’s getting started section shows dependencies in a pom.xml used by Maven: &amp;lt;!-- main library dependency --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;net.sf.extjwnl&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;extjwnl&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.0.2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- Princeton...">
   
 
 
@@ -80,7 +80,7 @@
   
 
   
-  <meta name="twitter:description" content="Clojure’s interop provides direct access to Java and its many libraries. In this post we’ll explore the Extended Java WordNet Library (extJWNL). extJWNL’s Getting started section shows dependencies in a pom.xml used by Maven: &amp;lt;!-- main library dependency --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;net.sf.extjwnl&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;extjwnl&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.0.2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- Princeton WordNet 3.1 data dependency...">
+  <meta name="twitter:description" content="Clojure’s interop provides direct access to Java and its many libraries. This post will walk through using the Extended Java WordNet Library (extJWNL) to query WordNet. extJWNL’s getting started section shows dependencies in a pom.xml used by Maven: &amp;lt;!-- main library dependency --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;net.sf.extjwnl&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;extjwnl&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;2.0.2&amp;lt;/version&amp;gt; &amp;lt;/dependency&amp;gt; &amp;lt;!-- Princeton...">
   
 
   
@@ -179,11 +179,12 @@
       
 
       <article role="main" class="blog-post">
-        <p>Clojure’s <a href="https://clojure.org/reference/java_interop">interop</a>
-provides direct access to Java and its many libraries. In this post
-we’ll explore the Extended Java WordNet Library (extJWNL).</p>
+        <p>Clojure’s <a href="https://clojure.org/reference/java_interop">interop</a> provides
+direct access to Java and its many libraries. This post will walk
+through using the Extended Java WordNet Library (extJWNL) to query
+WordNet.</p>
 
-<p>extJWNL’s <a href="https://github.com/extjwnl/extjwnl">Getting started section</a>
+<p>extJWNL’s <a href="https://github.com/extjwnl/extjwnl">getting started section</a>
 shows dependencies in a
 pom.xml used by 
 <a href="https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#What_is_a_POM">Maven</a>:</p>
@@ -202,20 +203,19 @@ pom.xml used by
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div></div>
 
-<p>Clojure projects can also use Maven dependencies. We just need to
-translate the XML into something our tooling understands.</p>
+<p>Clojure projects can also use Maven dependencies if you translate the
+XML into something its tooling understands.</p>
 
 <p>The same dependencies using
-a <a href="https://clojure.org/guides/deps_and_cli"><code class="highlighter-rouge">deps.edn</code></a> file looks
-like this:</p>
+<a href="https://clojure.org/guides/deps_and_cli">deps.edn</a>:</p>
 
 <div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="no">:deps</span><span class="w">
  </span><span class="p">{</span><span class="n">net.sf.extjwnl/extjwnl</span><span class="w">           </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"2.0.2"</span><span class="p">}</span><span class="w">
   </span><span class="n">net.sf.extjwnl/extjwnl-data-wn31</span><span class="w"> </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"1.2"</span><span class="p">}}}</span><span class="w">
 </span></code></pre></div></div>
 
-<p>In the same directory as our <code class="highlighter-rouge">deps.edn</code>,
-start a <a href="https://clojure.org/guides/deps_and_cli#_running_a_repl_and_using_libraries"><code class="highlighter-rouge">clj</code> REPL</a>
+<p>In the same directory as your deps.edn,
+start a <a href="https://clojure.org/guides/deps_and_cli#_running_a_repl_and_using_libraries">clj REPL</a>
 – which also downloads dependencies if necessary:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>clj
@@ -228,67 +228,80 @@ Clojure 1.10.0
 <a href="https://github.com/extjwnl/extjwnl/blob/master/utilities/src/main/java/net/sf/extjwnl/utilities/Examples.java">examples</a>
 make <code class="highlighter-rouge">Dictionary</code> seem like a good place to start. In the REPL:</p>
 
-<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">; Java: import net.sf.extjwnl.dictionary.Dictionary;</span><span class="w">
-</span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nb">import</span><span class="w"> </span><span class="ss">'net.sf.extjwnl.dictionary.Dictionary</span><span class="p">)</span><span class="w">
-</span><span class="n">net.sf.extjwnl.dictionary.Dictionary</span><span class="w">
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nb">import</span><span class="w"> </span><span class="ss">'net.sf.extjwnl.dictionary.Dictionary</span><span class="p">)</span><span class="w">
+</span><span class="c1">;;=&gt; net.sf.extjwnl.dictionary.Dictionary</span><span class="w">
 
-</span><span class="c1">; Java: Dictionary dict = Dictionary.getDefaultResourceInstance();</span><span class="w">
 </span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">def</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="p">(</span><span class="nf">Dictionary/getDefaultResourceInstance</span><span class="p">))</span><span class="w">
 </span><span class="n">SLF4J</span><span class="err">:</span><span class="w"> </span><span class="n">Failed</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="nb">load</span><span class="w"> </span><span class="nb">class</span><span class="w"> </span><span class="s">"org.slf4j.impl.StaticLoggerBinder"</span><span class="nb">.</span><span class="w">
 </span><span class="n">SLF4J</span><span class="err">:</span><span class="w"> </span><span class="n">Defaulting</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">no-operation</span><span class="w"> </span><span class="p">(</span><span class="nf">NOP</span><span class="p">)</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="n">implementation</span><span class="w">
 </span><span class="n">SLF4J</span><span class="err">:</span><span class="w"> </span><span class="n">See</span><span class="w"> </span><span class="n">http</span><span class="no">://www.slf4j.org/codes.html#StaticLoggerBinder</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">further</span><span class="w"> </span><span class="n">details.</span><span class="w">
-</span><span class="o">#</span><span class="ss">'user/dict</span><span class="w">
+</span><span class="c1">;;=&gt; #'user/dict</span><span class="w">
 </span></code></pre></div></div>
 
-<p>Looks like extJWNL uses <a href="http://www.slf4j.org/">SLF4J</a> for logging and
-we didn’t include it in our dependencies. To disable the warning we
-could add slf4j-nop to our <code class="highlighter-rouge">deps.edn</code>:</p>
+<p>extJWNL uses <a href="http://www.slf4j.org/">SLF4J</a> for logging and it wasn’t
+included in the dependencies. To disable the warning add slf4j-nop to
+your deps.edn:</p>
 
 <div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="no">:deps</span><span class="w">
  </span><span class="p">{</span><span class="n">net.sf.extjwnl/extjwnl</span><span class="w">           </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"2.0.2"</span><span class="p">}</span><span class="w">
   </span><span class="n">net.sf.extjwnl/extjwnl-data-wn31</span><span class="w"> </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"1.2"</span><span class="p">}</span><span class="w">
   </span><span class="c1">; no-operation logger</span><span class="w">
-  </span><span class="n">org.slf4j/slf4j-nop</span><span class="w">              </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"1.7.25"</span><span class="p">}}</span><span class="w">
+  </span><span class="n">org.slf4j/slf4j-nop</span><span class="w">              </span><span class="p">{</span><span class="no">:mvn/version</span><span class="w"> </span><span class="s">"1.7.25"</span><span class="p">}}}</span><span class="w">
 </span></code></pre></div></div>
 
-<p>Let’s try again:</p>
+<p>Try again:</p>
 
 <div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">$</span><span class="w"> </span><span class="n">clj</span><span class="w">
 </span><span class="n">Clojure</span><span class="w"> </span><span class="mf">1.10</span><span class="n">.0</span><span class="w">
-</span><span class="c1">; Java: import net.sf.extjwnl.dictionary.Dictionary;</span><span class="w">
 </span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nb">import</span><span class="w"> </span><span class="ss">'net.sf.extjwnl.dictionary.Dictionary</span><span class="p">)</span><span class="w">
-</span><span class="n">net.sf.extjwnl.dictionary.Dictionary</span><span class="w">
+</span><span class="c1">;;=&gt; net.sf.extjwnl.dictionary.Dictionary</span><span class="w">
 
-</span><span class="c1">; Java: Dictionary dict = Dictionary.getDefaultResourceInstance();</span><span class="w">
 </span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">def</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="p">(</span><span class="nf">Dictionary/getDefaultResourceInstance</span><span class="p">))</span><span class="w">
-</span><span class="o">#</span><span class="ss">'user/dict</span><span class="w">
+</span><span class="c1">;;=&gt; #'user/dict</span><span class="w">
 </span></code></pre></div></div>
 
 <p>That’s better.</p>
 
 <p>Following along in the
-<a href="http://extjwnl.sourceforge.net/javadocs/index.html">Java API documentation</a> we can
+<a href="http://extjwnl.sourceforge.net/javadocs/index.html">Java API documentation</a> you can
 see <code class="highlighter-rouge">Dictionary</code> methods:</p>
 
-<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">; Java: dict.lookupAllIndexWords("dog");</span><span class="w">
-</span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">.lookupAllIndexWords</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="s">"dog"</span><span class="p">)</span><span class="w">
-</span><span class="c1">;;=&gt; ... "[IndexWordSet: [IndexWord: [Lemma: dog] [POS: noun]][IndexWord: [Lemma: dog] [POS: verb]]]"</span><span class="w">
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">.lookupAllIndexWords</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="s">"rabbit"</span><span class="p">)</span><span class="w">
+</span><span class="c1">;;=&gt; ... "[IndexWordSet: [IndexWord: [Lemma: rabbit] [POS: noun]][IndexWord: [Lemma: rabbit] [POS: verb]]]"</span><span class="w">
 </span></code></pre></div></div>
 
-<p><code class="highlighter-rouge">IndexWordSet</code>? Check the API documentation again. Looks like
-<code class="highlighter-rouge">getIndexWordCollection</code> gives us something that works with Clojure’s
-map, filter, etc.</p>
+<p><code class="highlighter-rouge">IndexWordSet</code>? The API documentation shows <code class="highlighter-rouge">getIndexWordCollection</code>
+gives a <code class="highlighter-rouge">Collection</code> that works with Clojure’s <code class="highlighter-rouge">map</code>, <code class="highlighter-rouge">filter</code>, etc.</p>
 
-<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">; Java: dict.lookupAllIndexWords("dog").getIndexWordCollection();</span><span class="w">
-</span><span class="p">(</span><span class="nf">.getIndexWordCollection</span><span class="w">
-    </span><span class="p">(</span><span class="nf">.lookupAllIndexWords</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="s">"dog"</span><span class="p">))</span><span class="w"> </span><span class="c1">;;=&gt; ... "[[IndexWord: [Lemma: dog] [POS: noun]], [IndexWord: [Lemma: dog] [POS: verb]]]"</span><span class="w">
-
-
-</span><span class="c1">; I like my Java like I like my conspiracy wall -- threading over a map.</span><span class="w">
-</span><span class="p">(</span><span class="nf">-&gt;&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">.lookupAllIndexWords</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="s">"dog"</span><span class="p">)</span><span class="w">
-     </span><span class="p">(</span><span class="nf">.getIndexWordCollection</span><span class="p">)</span><span class="w">
-     </span><span class="p">(</span><span class="nb">map</span><span class="w"> </span><span class="o">#</span><span class="p">(</span><span class="nf">.getPOS</span><span class="w"> </span><span class="n">%</span><span class="p">)))</span><span class="w"> </span><span class="c1">;;=&gt; (... "[POS: noun]"] ... "[POS: verb]"])</span><span class="w">
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">.getIndexWordCollection</span><span class="w">
+        </span><span class="p">(</span><span class="nf">.lookupAllIndexWords</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="s">"rabbit"</span><span class="p">))</span><span class="w">
+</span><span class="c1">;;=&gt; ... "[[IndexWord: [Lemma: rabbit] [POS: noun]], [IndexWord: [Lemma: rabbit] [POS: verb]]]"</span><span class="w">
 </span></code></pre></div></div>
+
+<p><a href="https://clojure.org/guides/threading_macros">Thread</a> the words
+into <code class="highlighter-rouge">map</code> and get the part of speech:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">-&gt;&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">.lookupAllIndexWords</span><span class="w"> </span><span class="n">dict</span><span class="w"> </span><span class="s">"rabbit"</span><span class="p">)</span><span class="w">
+            </span><span class="p">(</span><span class="nf">.getIndexWordCollection</span><span class="p">)</span><span class="w">
+            </span><span class="p">(</span><span class="nb">map</span><span class="w"> </span><span class="o">#</span><span class="p">(</span><span class="nf">.getPOS</span><span class="w"> </span><span class="n">%</span><span class="p">)))</span><span class="w">
+</span><span class="c1">;;=&gt; (... "[POS: noun]"] ... "[POS: verb]"])</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Perhaps there’s an interesting way to use rabbit as a verb? If you only
+want one part of speech for a word you can use <code class="highlighter-rouge">lookupIndexWord</code>:</p>
+
+<div class="language-clojure highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nb">import</span><span class="w"> </span><span class="ss">'net.sf.extjwnl.data.POS</span><span class="p">)</span><span class="w">
+</span><span class="c1">;;=&gt; net.sf.extjwnl.data.POS</span><span class="w">
+
+</span><span class="n">user=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">-&gt;&gt;</span><span class="w"> </span><span class="p">(</span><span class="nf">.getSenses</span><span class="w">
+                </span><span class="p">(</span><span class="nf">.lookupIndexWord</span><span class="w"> </span><span class="n">dict</span><span class="w">                                                         
+                                    </span><span class="n">POS/VERB</span><span class="w">
+                                    </span><span class="s">"rabbit"</span><span class="p">))</span><span class="w">                                                   
+            </span><span class="p">(</span><span class="nb">map</span><span class="w"> </span><span class="o">#</span><span class="p">(</span><span class="nf">.getGloss</span><span class="w"> </span><span class="n">%</span><span class="p">)))</span><span class="w">
+</span><span class="c1">;;=&gt; ("hunt rabbits")</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Oh.</p>
 
 <p>From here, hopefully you’ll be comfortable reading
 <a href="https://github.com/extjwnl/extjwnl/wiki/Documentation">extJWNL’s documentation</a>
